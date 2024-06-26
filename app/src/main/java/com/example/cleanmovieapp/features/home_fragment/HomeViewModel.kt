@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import retrofit2.Response
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,7 +42,7 @@ class HomeViewModel @Inject constructor(
                     getPopularMoviesUseCase.getPopularMovies()
                         .cachedIn(viewModelScope)
                         .collectLatest { pagingData ->
-                            _popularMovieList.value = Resource.Success(pagingData)
+                            _popularMovieList.value = handleResponse(Response.success(pagingData))
                         }
                 }
                 result.onFailure { e ->
@@ -52,6 +53,15 @@ class HomeViewModel @Inject constructor(
             } else {
                 _popularMovieList.value = Resource.Error("No internet connection")
             }
+        }
+    }
+
+    private fun <T> handleResponse(response: Response<T>): Resource<T> {
+
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!)
+        } else {
+            Resource.Error(response.message())
         }
     }
 
