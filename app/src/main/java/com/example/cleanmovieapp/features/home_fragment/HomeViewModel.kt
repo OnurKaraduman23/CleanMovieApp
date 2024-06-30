@@ -3,7 +3,6 @@ package com.example.cleanmovieapp.features.home_fragment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.cleanmovieapp.common.StringResource
 import com.example.cleanmovieapp.common.Status
 import com.example.cleanmovieapp.common.ThrowableReporter
 import com.example.cleanmovieapp.common.extension.onEachError
