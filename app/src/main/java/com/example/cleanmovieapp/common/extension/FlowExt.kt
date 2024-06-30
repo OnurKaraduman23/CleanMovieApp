@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 fun <T> Flow<T>.safeLaunchIn(scope: CoroutineScope): Job = scope.launch {
     catch {
 //        ThrowableReporter.report(it) //Hata raporlama mekanizması
-
     }.collect()
 }
 
@@ -29,6 +28,7 @@ fun <T> Flow<Resource<T>>.onEachError(onError: suspend (Throwable) -> Unit = {})
     onEach {
         if (it is Resource.Failure) {
             onError.invoke(Throwable(it.error.toString()))
+//            ThrowableReporter.setReport(Throwable(it.error.message))
         }
     }
 

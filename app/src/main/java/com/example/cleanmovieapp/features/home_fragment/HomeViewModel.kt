@@ -3,7 +3,9 @@ package com.example.cleanmovieapp.features.home_fragment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.cleanmovieapp.common.StringResource
 import com.example.cleanmovieapp.common.Status
+import com.example.cleanmovieapp.common.ThrowableReporter
 import com.example.cleanmovieapp.common.extension.onEachError
 import com.example.cleanmovieapp.common.extension.onEachLoading
 import com.example.cleanmovieapp.common.extension.onEachSuccess
@@ -17,9 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getPopularMoviesUseCase: GetPopularMoviesUseCase,
-
     ) : ViewModel() {
-    // 2 tane view state olacak 1-> page view state
+
     private val _pageViewState =
         MutableStateFlow<HomePageViewState?>(null)
     val pageViewState: StateFlow<HomePageViewState?> get() = _pageViewState
@@ -44,7 +45,9 @@ class HomeViewModel @Inject constructor(
                 _statusViewState.value = HomeStatusViewState(Status.LOADING)
             }
             .onEachError {
+                ThrowableReporter.setReport(it) // bunu burada kullanmak doğru mu ?
                 _statusViewState.value = HomeStatusViewState(Status.ERROR)
+
             }
             .safeLaunchIn(viewModelScope)
     }
