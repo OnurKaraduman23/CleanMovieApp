@@ -1,20 +1,22 @@
 package com.example.cleanmovieapp.domain.use_case
 
-import androidx.paging.PagingData
-import com.example.cleanmovieapp.di.IoDispatcher
-import com.example.cleanmovieapp.domain.repository.MoviesRepository
-import com.example.themovieapp.domain.model.ui_model.popular_movies.PopularMovie
-import kotlinx.coroutines.CoroutineDispatcher
+import com.example.cleanmovieapp.common.Resource
+import com.example.cleanmovieapp.common.extension.mapOnData
+import com.example.cleanmovieapp.data.repository.MoviesRepository
+import com.example.cleanmovieapp.domain.model.popular_movies.HomeContent
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class GetPopularMoviesUseCase @Inject constructor(
     private val moviesRepository: MoviesRepository,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher
+    private val mapper: HomeContentMapper
 ) {
+    fun getPopularMovies(): Flow<Resource<HomeContent>> {
+      return moviesRepository.getPopularMovies().mapOnData{
+           mapper.map(it)
+       }
+    }
 
-    suspend fun getPopularMovies(): Flow<PagingData<PopularMovie>> =
-        moviesRepository.getPopularMovies()
-            .flowOn(dispatcher)
+
 }
+

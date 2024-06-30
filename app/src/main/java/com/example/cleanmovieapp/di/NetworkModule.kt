@@ -1,9 +1,7 @@
 package com.example.cleanmovieapp.di
 
 import com.example.cleanmovieapp.common.Constants.BASE_URL
-import com.example.cleanmovieapp.data.repository.MoviesRepositoryImpl
 import com.example.cleanmovieapp.data.service.MovieApi
-import com.example.cleanmovieapp.domain.repository.MoviesRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -56,13 +54,7 @@ object NetworkModule {
         return GsonConverterFactory.create()
     }
 
-    @Provides
-    @Singleton
-    fun provideMoviesRepository(
-        api: MovieApi,
-    ): MoviesRepository {
-        return MoviesRepositoryImpl(api)
-    }
+
 
 
 }

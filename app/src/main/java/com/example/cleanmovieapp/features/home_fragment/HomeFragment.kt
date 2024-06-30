@@ -1,12 +1,13 @@
 package com.example.cleanmovieapp.features.home_fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
-import com.example.cleanmovieapp.common.Resource
+import com.example.cleanmovieapp.common.extension.setVisibility
 import com.example.cleanmovieapp.databinding.FragmentHomeBinding
 import com.example.cleanmovieapp.features.home_fragment.adapter.PopularMoviesAdapter
 import com.example.moviecaseapp.common.binding_adapter.BindingFragment
@@ -26,8 +27,15 @@ class HomeFragment : BindingFragment<FragmentHomeBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupPopularMoviesRecyclerView()
-        collectPopularMoviesUIState()
+        collectViewModel()
+        setClickListeners()
 
+    }
+
+    private fun setClickListeners(){
+        binding.statusViewHome.setErrorClickListener {
+            homeViewModel.getPopularMovies()
+        }
     }
 
     private fun setupPopularMoviesRecyclerView() {
@@ -35,47 +43,29 @@ class HomeFragment : BindingFragment<FragmentHomeBinding>() {
         binding.popularMoviesRecyclerView.adapter = popularMoviesAdapter
     }
 
-    private fun collectPopularMoviesUIState() {
-        lifecycleScope.launch {
-            homeViewModel.popularMovieList.collectLatest { resource ->
-                when (resource) {
-                    is Resource.Loading -> {
-                        showProgressBar()
-                    }
-
-                    is Resource.Success -> {
-                        hideProgressBar()
-                        hideError()
-                        popularMoviesAdapter.submitData(resource.data!!)
-                    }
-
-                    is Resource.Error -> {
-                        hideProgressBar()
-                        showError(resource.message)
-
-                    }
+    private fun collectViewModel() {
+        with(homeViewModel) {
+            lifecycleScope.launch {
+                pageViewState.collectLatest { state ->
+                    Log.e("Dante", state?.content?.movies?.map { it.title }.toString())
+                    state?.let { renderPageViewState(it) }
+                }
+            }
+            lifecycleScope.launch {
+                statusViewState.collectLatest { state ->
+                    state?.let { renderStatusViewState(it) }
                 }
             }
         }
     }
 
-    private fun showProgressBar() {
-        binding.progressBarHome.visibility = View.VISIBLE
+    private fun renderPageViewState(viewState: HomePageViewState) {
+        popularMoviesAdapter.submitList(viewState.content.movies)
     }
 
-    private fun hideProgressBar() {
-        binding.progressBarHome.visibility = View.INVISIBLE
-    }
+    private fun renderStatusViewState(statusViewState: HomeStatusViewState){
+        binding.statusViewHome.setViewState(statusViewState)
+        binding.popularMoviesRecyclerView.setVisibility(statusViewState.isStatusSuccess())
 
-    private fun showError(errorMesage: String?) {
-        binding.errorImageView.visibility = View.VISIBLE
-        binding.textViewError.visibility = View.VISIBLE
-        binding.textViewError.text = errorMesage
     }
-
-    private fun hideError() {
-        binding.errorImageView.visibility = View.INVISIBLE
-        binding.textViewError.visibility = View.INVISIBLE
-    }
-
 }
