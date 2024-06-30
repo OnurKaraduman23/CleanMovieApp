@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 class MovieListMapper @Inject constructor() {
 
-    // Burada voteAvarage formatlanacak
+
     fun map(responseList: List<PopularMovieResponse?>?): List<PopularMovie> {
         return responseList?.mapNotNull { result ->
             if (result?.id == null) return@mapNotNull null
